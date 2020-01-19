@@ -1,9 +1,9 @@
 // cqevent.cpp 定义CQ事件
-#include "pch.h"
+#include "..\dll\pch.h"
 
-#include "dll.h"
+#include "..\dll\dll.h"
 #include "cqevent.h"
-#include "cqapi.h"
+#include "..\cqapi\cqapi.h"
 
 using json = nlohmann::json;
 

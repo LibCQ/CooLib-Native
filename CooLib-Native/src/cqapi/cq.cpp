@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "..\dll\pch.h"
 #include "cq.h"
 
 namespace cq {

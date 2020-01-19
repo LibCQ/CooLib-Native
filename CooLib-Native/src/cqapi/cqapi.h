@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cq.h"
-#include "pch.h"
+#include "..\dll\pch.h"
 
 namespace cq {
 	extern int32_t CQ_addLog_Debug(const char* type, const char* info) {

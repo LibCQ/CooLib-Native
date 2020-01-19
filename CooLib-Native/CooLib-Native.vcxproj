@@ -19,20 +19,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\cq.h" />
-    <ClInclude Include="src\cqapi.h" />
-    <ClInclude Include="src\cqevent.h" />
-    <ClInclude Include="src\dll.h" />
-    <ClInclude Include="src\framework.h" />
-    <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\cqapi\cq.h" />
+    <ClInclude Include="src\cqapi\cqapi.h" />
+    <ClInclude Include="src\cqevent\cqevent.h" />
+    <ClInclude Include="src\dll\dll.h" />
+    <ClInclude Include="src\dll\framework.h" />
+    <ClInclude Include="src\dll\pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\cq.cpp" />
-    <ClCompile Include="src\cqevent.cpp" />
-    <ClCompile Include="src\dllmain.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+    <ClCompile Include="src\cqapi\cq.cpp" />
+    <ClCompile Include="src\cqevent\cqevent.cpp" />
+    <ClCompile Include="src\dll\dllmain.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\dll\pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dll.def" />
@@ -104,7 +104,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;COOLIBNATIVE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>

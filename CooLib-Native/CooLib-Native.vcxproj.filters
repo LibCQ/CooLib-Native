@@ -15,36 +15,36 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\cq.h">
+    <ClInclude Include="src\cqapi\cq.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\cqapi.h">
+    <ClInclude Include="src\cqapi\cqapi.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\cqevent.h">
+    <ClInclude Include="src\cqevent\cqevent.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\dll.h">
+    <ClInclude Include="src\dll\dll.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\framework.h">
+    <ClInclude Include="src\dll\framework.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\pch.h">
+    <ClInclude Include="src\dll\pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\cqevent.cpp">
+    <ClCompile Include="src\cqapi\cq.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\dllmain.cpp">
+    <ClCompile Include="src\dll\dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\pch.cpp">
+    <ClCompile Include="src\cqevent\cqevent.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\cq.cpp">
+    <ClCompile Include="src\dll\pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

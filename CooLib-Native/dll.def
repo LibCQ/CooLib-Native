@@ -1,0 +1,6 @@
+LIBRARY CooLib-Native.dll
+EXPORTS
+AppInfo
+Initialize
+_eventExit
+_eventStartup

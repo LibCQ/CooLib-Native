@@ -44,8 +44,14 @@
     <ClCompile Include="src\pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\cq.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="dll.def">
+      <Filter>源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

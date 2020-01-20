@@ -18,9 +18,6 @@
     <ClInclude Include="src\cqapi\cq.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\cqapi\cqapi.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\cqevent\cqevent.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -31,6 +28,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\dll\pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libevent\libevent.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libevent\lib.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -45,6 +48,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\dll\pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libevent\lib.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libevent\libevent.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "..\dll\pch.h"
+#include "cqapi.h"
 
 namespace cq
 {
@@ -13,5 +14,10 @@ namespace cq
 	extern tCQ_setFatal CQ_setFatal;
 
 	void __init_api();
+
+	extern int32_t CQ_addLog_Debug(const char* type, const char* info);
+	extern int32_t CQ_addLog_Info(const char* type, const char* info);
+	extern int32_t CQ_addLog_Error(const char* type, const char* info);
+	extern int32_t CQ_addLog_Fatal(const char* type, const char* info);
 }
 

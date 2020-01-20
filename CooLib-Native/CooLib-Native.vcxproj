@@ -20,11 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\cqapi\cq.h" />
-    <ClInclude Include="src\cqapi\cqapi.h" />
     <ClInclude Include="src\cqevent\cqevent.h" />
     <ClInclude Include="src\dll\dll.h" />
     <ClInclude Include="src\dll\framework.h" />
     <ClInclude Include="src\dll\pch.h" />
+    <ClInclude Include="src\libevent\lib.h" />
+    <ClInclude Include="src\libevent\libevent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cqapi\cq.cpp" />
@@ -33,6 +34,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\dll\pch.cpp" />
+    <ClCompile Include="src\libevent\lib.cpp" />
+    <ClCompile Include="src\libevent\libevent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dll.def" />
@@ -113,7 +116,7 @@
       <CallingConvention>StdCall</CallingConvention>
       <Optimization>Disabled</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <CompileAs>Default</CompileAs>
     </ClCompile>
     <Link>

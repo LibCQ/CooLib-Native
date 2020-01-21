@@ -4,6 +4,8 @@ AppInfo
 Initialize
 _eventExit
 _eventStartup
+_eventEnable
+_eventDisable
 LibInfo
 LibCallback
 AppCallback

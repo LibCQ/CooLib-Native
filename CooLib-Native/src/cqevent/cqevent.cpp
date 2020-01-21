@@ -26,13 +26,18 @@ extern "C" int32_t __stdcall _eventStartup()
 
 extern "C" int32_t __stdcall _eventEnable() {
 
-	clock_t timeStart = clock();
+	LARGE_INTEGER time;
+	QueryPerformanceFrequency(&time);
+	LONGLONG timeDff = time.QuadPart;
+	QueryPerformanceCounter(&time);
+	__int64 timeStart = time.QuadPart;
 
 	loadLib();
 
-	clock_t timeEnd = clock();
+	QueryPerformanceCounter(&time);
+	__int64 timeEnd = time.QuadPart;
 	std::string debugInfo;
-	debugInfo = debugInfo + "Loaded.(" + std::to_string(libList.size()) + " succeed, " + std::to_string(timeEnd - timeStart) + "ms)";
+	debugInfo = debugInfo + "Loaded.(" + std::to_string(libList.size()) + " succeed, " + std::to_string((double)(timeEnd - timeStart) * 1000 / timeDff) + "ms)";
 	cq::CQ_addLog_Debug("CooLib-Native", debugInfo.c_str());
 
 	return 0;
@@ -40,14 +45,20 @@ extern "C" int32_t __stdcall _eventEnable() {
 
 extern "C" int32_t __stdcall _eventDisable() {
 
-	clock_t timeStart = clock();
+	//LARGE_INTEGER time;
+	//QueryPerformanceFrequency(&time);
+	//LONGLONG timeDff = time.QuadPart;
+	//QueryPerformanceCounter(&time);
+	//__int64 timeStart = time.QuadPart;
 
 	unloadLib();
 
-	clock_t timeEnd = clock();
-	std::string debugInfo;
-	debugInfo = debugInfo + "Unloaded.(" + std::to_string(libList.size()) + " succeed, " + std::to_string(timeEnd - timeStart) + "ms)";
-	cq::CQ_addLog_Debug("CooLib-Native", debugInfo.c_str());
+	//QueryPerformanceCounter(&time);
+	//__int64 timeEnd = time.QuadPart;
+	//std::string debugInfo;
+	//debugInfo = debugInfo + "Unloaded.(" + std::to_string(libList.size()) + " succeed, " + std::to_string((double)(timeEnd - timeStart) * 1000 / timeDff) + "ms)";
+	//cq::CQ_addLog_Debug("CooLib-Native", debugInfo.c_str());
+	// -997
 
 	return 0;
 }

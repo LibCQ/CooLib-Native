@@ -36,8 +36,11 @@ void loadLib() { // 加载Lib
 		do {
 			// 判断插件是否启用
 			std::string dllAppID = FindFileData.cFileName;
-			dllAppID = dllAppID.substr(0, dllAppID.rfind(".")) + ".status";
-			if (GetPrivateProfileIntA("App", dllAppID.c_str(), 0, cqpConfPath) != 1) continue;
+			dllAppID = dllAppID.substr(0, dllAppID.rfind("."));
+			if (dllAppID != "cn.coorg.coolib") { // 有的时候启用事件在ini写入之前
+				dllAppID += ".status";
+				if (GetPrivateProfileIntA("App", dllAppID.c_str(), 0, cqpConfPath) != 1) continue;
+			}
 			// 载入插件
 			HMODULE hlib;
 			std::string path;
@@ -176,6 +179,9 @@ void unloadLib() { // 卸载Lib
 		i.loaded = false;
 		FreeLibrary(i.hlib); // 释放插件
 	}
+
+	libList.clear(); // 清空表
+
 	return;
 }
 

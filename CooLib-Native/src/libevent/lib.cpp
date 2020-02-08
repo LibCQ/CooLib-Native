@@ -75,30 +75,30 @@ void loadLib() { // 加载Lib
 			if (!i.j["lib"].empty()) {
 				for (json::iterator libName = i.j["lib"].begin(); libName != i.j["lib"].end(); ++libName) { // 遍历Lib需求表
 					if (libName->empty()) continue;
-					std::vector<cLibInfo>::iterator rlib = libFind(tlibList.begin(), tlibList.end(), libName.key());
+					std::vector<cLibInfo>::iterator rlib = libFind(tlibList.begin(), tlibList.end(), libName.value().get<std::string>());
 					if (rlib == tlibList.end()) { // 不存在
 						std::string errorInfo;
-						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName.key() + " 丢失或不存在，请确认指定插件已经安装并启用。";
+						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName.value().get<std::string>() + " 丢失或不存在，请确认指定插件已经安装并启用。";
 						cq::CQ_addLog_Error("CooLib-Native", errorInfo.c_str());
 						bj["s"] = false;
-						bmissLib.push_back(libName.key());
+						bmissLib.push_back(libName.value().get<std::string>());
 						continue;
 					}
 					if (!rlib->loaded) { // 未加载
 						std::string errorInfo;
-						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName.key() + " 未正确加载，请确认插件优先级配置正确（priority字段）。";
+						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName.value().get<std::string>() + " 未正确加载，请确认插件优先级配置正确（priority字段）。";
 						cq::CQ_addLog_Error("CooLib-Native", errorInfo.c_str());
 						bj["s"] = false;
-						bmissLib.push_back(libName.key());
+						bmissLib.push_back(libName.value().get<std::string>());
 						continue;
 					}
 					if (!versionMatch(libName.value().get<std::string>(), rlib->j["AppVer"].get<std::string>())) { // 版本未匹配
 						std::string errorInfo;
-						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName.key() + " 版本不正确或版本不合法";
+						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName->get<std::string>() + " 版本不正确或版本不合法";
 						errorInfo = errorInfo + "（required \"" + libName.value().get<std::string>() + "\" => installed \"" + rlib->j["AppVer"].get<std::string>() + "\"），请安装正确的版本。";
 						cq::CQ_addLog_Error("CooLib-Native", errorInfo.c_str());
 						bj["s"] = false;
-						bmissLib.push_back(libName.key());
+						bmissLib.push_back(libName.value().get<std::string>());
 						continue;
 					}
 					libPath[rlib->name] = rlib->path;

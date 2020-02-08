@@ -1,7 +1,7 @@
 #pragma once
 
 #include "..\dll\pch.h"
-#include "cqapi.h"
+#include "cq.h"
 
 namespace cq
 {

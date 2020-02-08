@@ -7,4 +7,6 @@ extern "C"
 	int32_t __stdcall AppCallback();
 	int32_t __stdcall DisableCallback();
 	int32_t __stdcall ExitCallback(const char* a);
+	int32_t __stdcall CheckLibA(const char* LibAppID, const char* LibVer);
+	int32_t __stdcall VersionMatch(const char* ver1, const char* ver2);
 }

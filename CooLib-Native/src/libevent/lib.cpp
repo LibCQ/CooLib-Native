@@ -2,6 +2,7 @@
 #include "lib.h"
 #include "..\dll\dll.h"
 #include "..\cqapi\cq.h"
+#include "..\cpp-semver\include\cpp-semver.hpp"
 
 using json = nlohmann::json;
 
@@ -236,7 +237,7 @@ std::vector<std::string> TSort(const std::vector<cTopological> sortT) { // อุฦหล
 		for (cTopological& i : sortT2) {
 			for (auto i2 = i.libNames.begin(); i2 != i.libNames.end(); ) {
 				if (*i2 == v) {
-					i2 == i.libNames.erase(i2);
+					i2 = i.libNames.erase(i2);
 				}
 				else {
 					i2++;
@@ -269,5 +270,5 @@ std::vector<cLibInfo>::iterator libFind(std::vector<cLibInfo>::iterator _First, 
 }
 
 bool versionMatch(std::string version, std::string range) {
-	// TODO
+	return semver::satisfies(version, range);
 }

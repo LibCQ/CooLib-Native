@@ -7,7 +7,6 @@ return (const char *)R"(
 {
     "ver": 1,
     "AppID": "cn.coorg.coolib",
-    "priority": 0,
     "AppVer": "1.0.0",
     "lib": [],
     "LibAPI": [

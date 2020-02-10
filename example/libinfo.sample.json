@@ -1,3 +1,5 @@
+// 一个示例 json，填入 LibInfo 的返回值中
+// CooLib-Native 无法读取含注释的 json（https://github.com/nlohmann/json/issues/376），请删除注释后放入
 {
     "ver": 1, // 版本号，填1
     "AppID": "cn.coorg.coolib", // AppID，与应用 AppID 保持一致
@@ -5,7 +7,7 @@
     "lib": [ // 依赖库表
         {
             "LibAppID": "cc.cqp.cq", // 依赖库的 AppID
-            "LibVer": "*" // 依赖库的需求版本，符合 node-semver.semver.satisfies
+            "LibVer": "*" // 依赖库的需求版本（范围语法：https://docs.npmjs.com/misc/semver#ranges https://docs.npmjs.com/misc/semver#advanced-range-syntax）
         }
     ],
     "LibAPI": [ // 接口表

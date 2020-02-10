@@ -1,0 +1,21 @@
+{
+    "ver": 1, // 版本号，填1
+    "AppID": "cn.coorg.coolib", // AppID，与应用 AppID 保持一致
+    "AppVer": "1.0.0", // 应用版本，应当符合 semver 版本号规定（https://semver.org/lang/zh-CN/）
+    "lib": [ // 依赖库表
+        {
+            "LibAppID": "cc.cqp.cq", // 依赖库的 AppID
+            "LibVer": "*" // 依赖库的需求版本，符合 node-semver.semver.satisfies
+        }
+    ],
+    "LibAPI": [ // 接口表
+        {
+            "func": "CheckLibA", // DLL函数名
+            "?": "@@YG_NPADPAD@Z" // 参数表
+        },
+        {
+            "func": "VersionMatch",
+            "?": "@@YG_NPADPAD@Z"
+        }
+    ]
+}

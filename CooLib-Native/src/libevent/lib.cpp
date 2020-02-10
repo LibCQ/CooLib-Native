@@ -63,7 +63,7 @@ void loadLib() { // 加载Lib
 	}
 
 	// 排序插件
-	std::sort(tlibList.begin(), tlibList.end(), upsort);
+	libList = LibSort(libList);
 
 	// 依次载入
 	for (cLibInfo& i : tlibList) {
@@ -75,30 +75,30 @@ void loadLib() { // 加载Lib
 			if (!i.j["lib"].empty()) {
 				for (json::iterator libName = i.j["lib"].begin(); libName != i.j["lib"].end(); ++libName) { // 遍历Lib需求表
 					if (libName->empty()) continue;
-					std::vector<cLibInfo>::iterator rlib = libFind(tlibList.begin(), tlibList.end(), libName.value().get<std::string>());
+					std::vector<cLibInfo>::iterator rlib = libFind(tlibList.begin(), tlibList.end(), libName.value()["LibAppID"].get<std::string>());
 					if (rlib == tlibList.end()) { // 不存在
 						std::string errorInfo;
-						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName.value().get<std::string>() + " 丢失或不存在，请确认指定插件已经安装并启用。";
+						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName.value()["LibAppID"].get<std::string>() + " 丢失或不存在，请确认指定插件已经安装并启用。";
 						cq::CQ_addLog_Error("CooLib-Native", errorInfo.c_str());
 						bj["s"] = false;
-						bmissLib.push_back(libName.value().get<std::string>());
+						bmissLib.push_back(libName.value()["LibAppID"].get<std::string>());
 						continue;
 					}
 					if (!rlib->loaded) { // 未加载
 						std::string errorInfo;
-						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName.value().get<std::string>() + " 未正确加载，请确认插件优先级配置正确（priority字段）。";
+						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName.value()["LibAppID"].get<std::string>() + " 未正确加载。";
 						cq::CQ_addLog_Error("CooLib-Native", errorInfo.c_str());
 						bj["s"] = false;
-						bmissLib.push_back(libName.value().get<std::string>());
+						bmissLib.push_back(libName.value()["LibAppID"].get<std::string>());
 						continue;
 					}
-					if (!versionMatch(libName.value().get<std::string>(), rlib->j["AppVer"].get<std::string>())) { // 版本未匹配
+					if (!versionMatch(libName.value()["LibVer"].get<std::string>(), rlib->j["AppVer"].get<std::string>())) { // 版本未匹配
 						std::string errorInfo;
-						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName->get<std::string>() + " 版本不正确或版本不合法";
+						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName.value()["LibAppID"].get<std::string>() + " 版本不正确或版本不合法";
 						errorInfo = errorInfo + "（required \"" + libName.value().get<std::string>() + "\" => installed \"" + rlib->j["AppVer"].get<std::string>() + "\"），请安装正确的版本。";
 						cq::CQ_addLog_Error("CooLib-Native", errorInfo.c_str());
 						bj["s"] = false;
-						bmissLib.push_back(libName.value().get<std::string>());
+						bmissLib.push_back(libName.value()["LibAppID"].get<std::string>());
 						continue;
 					}
 					libPath[rlib->name] = rlib->path;
@@ -142,7 +142,7 @@ void unloadLib() { // 卸载Lib
 	if (libList.empty()) return;
 
 	// 倒序排列
-	std::sort(libList.begin(), libList.end(), downsort);
+	std::reverse(libList.begin(), libList.end());
 
 	// 通知事件
 	for (cLibInfo& i : libList) {
@@ -156,15 +156,15 @@ void unloadLib() { // 卸载Lib
 	// 卸载
 	for (cLibInfo& i : libList) {
 		std::vector<std::string> bloadLib;
-		for (std::string libName : i.j["lib"]) { // 遍历Lib需求表
+		for (json libName : i.j["lib"]) { // 遍历Lib需求表
 			if (!libName.empty()) {
-				std::vector<cLibInfo>::iterator rlib = libFind(libList.begin(), libList.end(), libName);
+				std::vector<cLibInfo>::iterator rlib = libFind(libList.begin(), libList.end(), libName["name"].get<std::string>());
 				if (rlib->loaded) { // 已加载
 					bloadLib.push_back(rlib->name);
 				}
 				else { // 未加载
 					std::string errorInfo;
-					errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName + " 未正确加载，请确认插件优先级配置正确（priority字段）。";
+					errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName["name"].get<std::string>() + " 未正确加载，请确认插件优先级配置正确（priority字段）。";
 					cq::CQ_addLog_Error("CooLib-Native", errorInfo.c_str());
 				}
 			}
@@ -193,12 +193,69 @@ void reloadLib() { // 重载插件
 	return;
 }
 
-bool upsort(cLibInfo i, cLibInfo j) { // 优先级升序排列 - 判断
-	return i.priority < j.priority;
+std::vector<cLibInfo> LibSort(const std::vector<cLibInfo> sortLib) { // 适配函数
+	std::vector<cTopological> sortT;
+	for (cLibInfo i : sortLib) {
+		cTopological _i;
+		_i.name = i.name;
+		if (!i.j["lib"].empty()) {
+			_i.libNames = i.j["lib"].get<std::vector<std::string>>();
+		}
+		sortT.push_back(_i);
+	}
+	std::vector<std::string> sortedT = TSort(sortT);
+	std::vector<cLibInfo> rl;
+	for (std::string i : sortedT) {
+		for (cLibInfo i2 : sortLib) {
+			if (i2.name == i) {
+				rl.push_back(i2);
+				continue;
+			}
+		}
+	}
+	return rl;
 }
 
-bool downsort(cLibInfo i, cLibInfo j) { // 优先级降序排列 - 判断
-	return i.priority > j.priority;
+std::vector<std::string> TSort(const std::vector<cTopological> sortT) { // 拓扑排序
+	std::vector<cTopological> sortT2 = sortT;
+	std::queue<std::string> q;
+	for (cTopological i : sortT2) { // 空节点入队
+		if (i.libNames.empty()) {
+			q.push(i.name);
+		}
+	}
+	std::vector<std::string> rv;
+	size_t count = 0;
+	while (!q.empty())
+	{
+		std::string v = q.front(); // 取出一个顶点
+		q.pop();
+		rv.push_back(v);
+		++count;
+		// 删除依赖
+		for (cTopological& i : sortT2) {
+			for (auto i2 = i.libNames.begin(); i2 != i.libNames.end(); ) {
+				if (*i2 == v) {
+					i2 == i.libNames.erase(i2);
+				}
+				else {
+					i2++;
+				}
+			}
+		}
+		// 空节点入队
+		for (cTopological i : sortT2) {
+			if (i.libNames.empty()) {
+				q.push(i.name);
+			}
+		}
+	}
+	if (count < sortT.size()) {
+		return std::vector<std::string>();
+	}
+	else {
+		return rv;
+	}
 }
 
 std::vector<cLibInfo>::iterator libFind(std::vector<cLibInfo>::iterator _First, const std::vector<cLibInfo>::iterator _Last, const std::string& _Val) {
@@ -211,30 +268,6 @@ std::vector<cLibInfo>::iterator libFind(std::vector<cLibInfo>::iterator _First, 
 	return _First;
 }
 
-bool versionMatch(std::string rver, std::string ver) {
-	if (rver.empty() || ver.empty()) return false;
-	switch (rver[0])
-	{
-	case '*':
-		return true;
-	case '~':
-	{
-		rver.erase(rver.begin()); // 删掉~
-		std::vector<std::string> v, v2;
-		boost::split(v, rver, boost::is_any_of(".")); // 分割版本
-		boost::split(v2, ver, boost::is_any_of("."));
-		return !(v.size() < 2 || v2.size() < 2) && v[0] == v2[0] && v[1] == v2[1];
-	}
-	case '^':
-	{
-		rver.erase(rver.begin()); // 删掉^
-		std::vector<std::string> v, v2;
-		boost::split(v, rver, boost::is_any_of(".")); // 分割版本
-		boost::split(v2, ver, boost::is_any_of("."));
-		return !(v.size() < 1 || v2.size() < 1) && v[0] == v2[0];
-	}
-	default:
-		return false;
-		break;
-	}
+bool versionMatch(std::string version, std::string range) {
+	// TODO
 }

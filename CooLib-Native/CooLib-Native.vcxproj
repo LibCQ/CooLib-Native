@@ -19,6 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\cpp-semver\include\base\type.hpp" />
+    <ClInclude Include="src\cpp-semver\include\base\util.hpp" />
+    <ClInclude Include="src\cpp-semver\include\cpp-semver.hpp" />
+    <ClInclude Include="src\cpp-semver\include\parser\parser.hpp" />
+    <ClInclude Include="src\cpp-semver\include\parser\peg.hpp" />
     <ClInclude Include="src\cqapi\cq.h" />
     <ClInclude Include="src\cqevent\cqevent.h" />
     <ClInclude Include="src\dll\dll.h" />

@@ -1,4 +1,7 @@
 #pragma once
+#include "../dll/pch.h"
+
+using json = nlohmann::json;
 
 class cLibInfo
 {
@@ -6,12 +9,13 @@ public:
 	HMODULE hlib;
 	std::string path;
 	std::string name;
-	nlohmann::json j;
+	json j;
 	bool loaded;
-	cLibInfo(HMODULE _hlib, std::string _path, nlohmann::json _j) {
+	cLibInfo(HMODULE _hlib, std::string _path, std::string _j) {
 		hlib = _hlib;
 		path = _path;
-		j = _j;
+
+		j = json::parse(_j);
 		name = j["AppID"].get<std::string>();
 		loaded = false;
 	}

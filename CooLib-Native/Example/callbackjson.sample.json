@@ -1,0 +1,8 @@
+// 一个示例 json，作为 LibCallback 参数的 json 文本
+// 实际收到的 json 不会含有注释，放心解析
+{
+    "s": true, // 是否有错误产生，与 success 值相同
+    "FuncAddr": { // using 后返回的地址表，返回值使用方法与 GetProcAddress 相同
+        "Lib_GetFuncAddr": 320584
+    }
+}

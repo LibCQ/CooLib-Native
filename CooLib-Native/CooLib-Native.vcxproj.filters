@@ -36,18 +36,6 @@
     <ClInclude Include="src\libevent\lib.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\cpp-semver\include\base\type.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\cpp-semver\include\base\util.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\cpp-semver\include\parser\parser.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\cpp-semver\include\parser\peg.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\cpp-semver\include\cpp-semver.hpp">
       <Filter>头文件</Filter>
     </ClInclude>

@@ -4,12 +4,12 @@
     "ver": 1, // 版本号，填1
     "AppID": "com.example.demo", // AppID，与应用 AppID 保持一致
     "AppVer": "1.0.0", // 应用版本，应当符合 semver 版本号规定（https://semver.org/lang/zh-CN/）
-    "lib": [ // 依赖库表
-        {
-            "LibAppID": "cn.coorg.coolib", // 依赖库的 AppID
-            "LibVer": "*" // 依赖库的需求版本（范围语法：https://docs.npmjs.com/misc/semver#ranges https://docs.npmjs.com/misc/semver#advanced-range-syntax）
-        }
-    ],
+    "require": { // 依赖库表
+        "cn.coorg.coolib": "*" // 依赖库及需求版本（版本范围语法：https://docs.npmjs.com/misc/semver#ranges https://docs.npmjs.com/misc/semver#advanced-range-syntax）
+    },
+    "using": { // using 表，格式："名称":"LibAppID::API名"
+        "Lib_GetFuncAddr": "cn.coorg.coolib::GetFuncAddr"
+    },
     "LibAPI": [ // 接口表
         {
             "func": "ExampleAddFunc", // DLL函数名

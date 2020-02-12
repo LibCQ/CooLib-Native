@@ -57,8 +57,7 @@ void loadLib() { // 加载Lib
 				FreeLibrary(hlib);
 				continue;
 			}
-			json j = json::parse(hlibInfoProc());
-			cLibInfo i(hlib, path, j);
+			cLibInfo i(hlib, path, hlibInfoProc());
 			tlibList.push_back(i);
 		} while (FindNextFileA(hListFile, &FindFileData));
 	}
@@ -69,44 +68,68 @@ void loadLib() { // 加载Lib
 	// 依次载入
 	for (cLibInfo& i : tlibList) {
 		if (i.j["ver"] == 1) {
-			json bj;
+			json bj = json::object();
 			bj["s"] = true;
 			std::vector<std::string> bmissLib;
-			std::map<std::string, std::string> libPath;
 			if (!i.j["lib"].empty()) {
-				for (json::iterator libName = i.j["lib"].begin(); libName != i.j["lib"].end(); ++libName) { // 遍历Lib需求表
-					if (libName->empty()) continue;
-					std::vector<cLibInfo>::iterator rlib = libFind(tlibList.begin(), tlibList.end(), libName.value()["LibAppID"].get<std::string>());
+				for (auto libName = i.j["require"].begin(); libName != i.j["require"].end(); ++libName) { // 遍历Lib需求表
+					std::vector<cLibInfo>::iterator rlib = libFind(tlibList.begin(), tlibList.end(), libName.key());
 					if (rlib == tlibList.end()) { // 不存在
-						std::string errorInfo;
-						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName.value()["LibAppID"].get<std::string>() + " 丢失或不存在，请确认指定插件已经安装并启用。";
-						cq::CQ_addLog_Error("CooLib-Native", errorInfo.c_str());
+						cq::CQ_addLog_Error("CooLib-Native", (
+							boost::format("插件 %s 依赖的 %s 丢失或不存在，请确认指定插件已经安装并启用。") % i.name % libName.key()
+							).str().c_str());
 						bj["s"] = false;
-						bmissLib.push_back(libName.value()["LibAppID"].get<std::string>());
+						bmissLib.push_back(libName.key());
 						continue;
 					}
 					if (!rlib->loaded) { // 未加载
-						std::string errorInfo;
-						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName.value()["LibAppID"].get<std::string>() + " 未正确加载。";
-						cq::CQ_addLog_Error("CooLib-Native", errorInfo.c_str());
+						cq::CQ_addLog_Error("CooLib-Native", (
+							boost::format("插件 %s 依赖的 %s 未正确加载。") % i.name % libName.key()
+							).str().c_str());
 						bj["s"] = false;
-						bmissLib.push_back(libName.value()["LibAppID"].get<std::string>());
+						bmissLib.push_back(libName.key());
 						continue;
 					}
-					if (!versionMatch(libName.value()["LibVer"].get<std::string>(), rlib->j["AppVer"].get<std::string>())) { // 版本未匹配
-						std::string errorInfo;
-						errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName.value()["LibAppID"].get<std::string>() + " 版本不正确或版本不合法";
-						errorInfo = errorInfo + "（required \"" + libName.value().get<std::string>() + "\" => installed \"" + rlib->j["AppVer"].get<std::string>() + "\"），请安装正确的版本。";
-						cq::CQ_addLog_Error("CooLib-Native", errorInfo.c_str());
+					if (!versionMatch(rlib->j["AppVer"].get<std::string>(), i.j["require"][libName.key()].get<std::string>())) { // 版本未匹配
+						cq::CQ_addLog_Error("CooLib-Native", (
+							boost::format("插件 %s 依赖的 %s 版本不正确或版本不合法，请安装正确的版本。(required \"%s\" => installed \"%s\")") % i.name % libName.key() % i.j["require"][libName.key()].get<std::string>() % rlib->j["AppVer"].get<std::string>()
+							).str().c_str());
 						bj["s"] = false;
-						bmissLib.push_back(libName.value()["LibAppID"].get<std::string>());
+						bmissLib.push_back(libName.key());
 						continue;
 					}
-					libPath[rlib->name] = rlib->path;
 				}
-				if (!bmissLib.empty()) bj["missLib"] = bmissLib;
-				bj["libPath"] = libPath;
 			}
+			if (!i.j["using"].empty()) {
+				for (auto uname = i.j["require"].begin(); uname != i.j["require"].end(); ++uname) { // 遍历Lib需求表
+					std::vector<std::string> i2;
+					boost::split(i2, i.j["using"][uname.key()].get<std::string>(), boost::is_any_of("::"));
+					if (i2.size() != 2) {
+						cq::CQ_addLog_Error("CooLib-Native", (
+							boost::format("插件 %s 的 json 中 using 字段的 \"%s\" 不合法。") % i.name % i.j["using"][uname.key()].get<std::string>()
+							).str().c_str());
+						bj["s"] = false;
+						continue;
+					}
+					std::vector<cLibInfo>::iterator rlib = libFind(tlibList.begin(), tlibList.end(), i2[0]);
+					for (std::string i3 : bmissLib) { // lib missing
+						if (rlib->name == i3) {
+							goto nextU;
+						}
+					}
+					if (rlib == tlibList.end()) { // 不存在
+						cq::CQ_addLog_Error("CooLib-Native", (
+							boost::format("收到来自插件 %s 的依赖请求 %s ，但此依赖并未在 require 字段中注册。") % i.name % uname.key()
+							).str().c_str());
+						bj["s"] = false;
+						bmissLib.push_back(uname.key());
+						continue;
+					}
+					bj["FuncAddr"][uname.key()] = (int32_t)GetProcAddress(rlib->hlib, i2[1].c_str());
+				nextU:;
+				}
+			}
+			bj["missLib"] = bmissLib;
 			typedef int32_t(__stdcall* libCallbackProc)(bool, const char*);
 			libCallbackProc hlibCallbackProc = (libCallbackProc)GetProcAddress(i.hlib, "LibCallback"); // Lib Callback
 			if (hlibCallbackProc != NULL) {
@@ -157,21 +180,21 @@ void unloadLib() { // 卸载Lib
 	// 卸载
 	for (cLibInfo& i : libList) {
 		std::vector<std::string> bloadLib;
-		for (json libName : i.j["lib"]) { // 遍历Lib需求表
-			if (!libName.empty()) {
-				std::vector<cLibInfo>::iterator rlib = libFind(libList.begin(), libList.end(), libName["name"].get<std::string>());
+		json bj = json::object();
+		if (!i.j["lib"].empty()) {
+			for (auto libName = i.j["require"].begin(); libName != i.j["require"].end(); ++libName) { // 遍历Lib需求表
+				std::vector<cLibInfo>::iterator rlib = libFind(libList.begin(), libList.end(), libName.key());
 				if (rlib->loaded) { // 已加载
 					bloadLib.push_back(rlib->name);
 				}
 				else { // 未加载
-					std::string errorInfo;
-					errorInfo = errorInfo + "插件 " + i.name + " 依赖的 " + libName["name"].get<std::string>() + " 未正确加载，请确认插件优先级配置正确（priority字段）。";
-					cq::CQ_addLog_Error("CooLib-Native", errorInfo.c_str());
+					cq::CQ_addLog_Error("CooLib-Native", (
+						boost::format("插件 %s 依赖的 %s 未正确加载。") % i.name % libName.key()
+						).str().c_str());
 				}
 			}
+			bj["loadLib"] = bloadLib;
 		}
-		json bj;
-		bj["loadLib"] = bloadLib;
 		typedef int32_t(__stdcall* exitCallbackProc)(const char*);
 		exitCallbackProc hexitCallbackProc = (exitCallbackProc)GetProcAddress(i.hlib, "ExitCallback"); // App Callback
 		if (hexitCallbackProc != NULL) {
@@ -180,9 +203,7 @@ void unloadLib() { // 卸载Lib
 		i.loaded = false;
 		FreeLibrary(i.hlib); // 释放插件
 	}
-
 	libList.clear(); // 清空表
-
 	return;
 }
 
@@ -196,18 +217,20 @@ void reloadLib() { // 重载插件
 
 std::vector<cLibInfo> LibSort(const std::vector<cLibInfo> sortLib) { // 适配函数
 	std::vector<cTopological> sortT;
-	for (cLibInfo i : sortLib) {
+	for (const cLibInfo& i : sortLib) {
 		cTopological _i;
 		_i.name = i.name;
-		if (!i.j["lib"].empty()) {
-			_i.libNames = i.j["lib"].get<std::vector<std::string>>();
+		if (!i.j["require"].empty()) {
+			for (auto libName = i.j["require"].begin(); libName != i.j["require"].end(); ++libName) {
+				_i.libNames.push_back(libName.key());
+			}
 		}
 		sortT.push_back(_i);
 	}
 	std::vector<std::string> sortedT = TSort(sortT);
 	std::vector<cLibInfo> rl;
 	for (std::string i : sortedT) {
-		for (cLibInfo i2 : sortLib) {
+		for (const cLibInfo& i2 : sortLib) {
 			if (i2.name == i) {
 				rl.push_back(i2);
 				continue;

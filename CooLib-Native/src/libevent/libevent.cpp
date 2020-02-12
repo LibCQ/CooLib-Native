@@ -3,12 +3,12 @@
 #include "lib.h"
 
 extern "C" const char* __stdcall LibInfo() {
-return (const char *)R"(
+	return (const char*)R"(
 {
     "ver": 1,
     "AppID": "cn.coorg.coolib",
     "AppVer": "1.0.0",
-    "lib": [],
+    "require": {},
     "LibAPI": [
         {
             "func": "CheckLibA",
@@ -41,7 +41,7 @@ extern "C" int32_t __stdcall ExitCallback(const char* a) {
 
 extern "C" int32_t __stdcall CheckLibA(const char* LibAppID, const char* LibVer) {
 	for (cLibInfo& i : libList) {
-		if (i.name == LibAppID && versionMatch(LibVer, i.j["AppVer"].get<std::string>())) {
+		if (i.name == LibAppID && versionMatch(i.j["AppVer"].get<std::string>(), LibVer)) {
 			return true;
 		}
 	}

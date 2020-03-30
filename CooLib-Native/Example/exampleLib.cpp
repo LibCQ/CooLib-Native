@@ -41,30 +41,39 @@ extern "C" int32_t __stdcall _eventStartup()
 	return 0;
 }
 
-extern "C" const char* __stdcall LibInfo() { // 在这里填写应用相关信息（参照libinfo.sample.json），注意不要保留json注释
+extern "C" const char* __stdcall LibInfo() { // 在这里填写应用相关信息
 	return (const char*)R"(
+// 一个示例 json，填入 LibInfo 的返回值中
 {
-    "ver": 1,
-    "AppID": "com.example.demo",
-    "AppVer": "1.0.0",
-    "require": {
-        "cn.coorg.coolib.testlib": "*"
-    },
-    "using": {
-        "Add": "cn.coorg.coolib.testlib::Add"
-    },
-    "LibAPI": {
-		"ExampleAddFunc": "ExampleAddFunc",
-		"Dec": {
-			"ExampleDecFunc": "ExampleDecFunc"
-		}
-	}
+  "ver": 1, // 版本号，填1
+  "AppID": "com.example.demo", // AppID，与应用 AppID 保持一致
+  "AppVer": "1.0.0", // 应用版本，应当符合 semver 版本号规定（https://semver.org/lang/zh-CN/）
+  "require": { // 依赖库表
+    "cn.coorg.coolib.testlib": "*" // 依赖库及需求版本（版本范围语法：https://docs.npmjs.com/misc/semver#ranges https://docs.npmjs.com/misc/semver#advanced-range-syntax）
+  },
+  "using": {
+    "ExampleDecFunc": "cn.coorg.coolib.testlib::ExampleDecFunc"
+  },
+  "LibAPI": { // 接口表
+    "ExampleAddFunc": "ExampleAddFunc", // API名 : DLL导出名
+    "Dec": { // 命名空间，可嵌套
+      "ExampleDecFunc": "ExampleDecFunc"
+    }
+  }
 }
 )";
 }
 
+// 将酷Q事件的对应函数搬到下方的 CooLib 事件中
+// Startup -> LibCallback
+// Enable -> AppCallback
+// Disable -> DisableCallback
+// Exit -> ExitCallback
+// 并在酷Q相关消息事件中加入是否载入的判断（重要，由于 CooLib 是异步载入，酷Q可能会在以下事件调用前通知消息事件）
+
 extern "C" int32_t __stdcall LibCallback(bool success, const char* callbackJson) { // 库载入事件
 	if (success) {
+		// 返回 json 参照 callback.sample.json
 		json j = json::parse(callbackJson);
 		Add = reinterpret_cast<tAdd>(j["FuncAddr"]["Add"].get<int32_t>());
 		// TODO: PUT YOUR CODE HERE
@@ -84,7 +93,6 @@ extern "C" int32_t __stdcall DisableCallback() { // 应用卸载事件
 
 extern "C" int32_t __stdcall ExitCallback(const char* callbackJson) { // 库卸载事件
 	// TODO: PUT YOUR CODE HERE
-	FreeLibrary(examplelib);
 	return 0;
 }
 

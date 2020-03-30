@@ -11,7 +11,4 @@ LibCallback
 AppCallback
 DisableCallback
 ExitCallback
-CheckLibA
-VersionMatch
-IsEnabled
-LibLoaded
+Add

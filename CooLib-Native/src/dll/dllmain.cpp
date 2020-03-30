@@ -2,7 +2,7 @@
 #include "pch.h"
 
 #include "dll.h"
-#include "..\cqapi\cq.h"
+#include "..\cq\cq.h"
 
 HMODULE _hModule = 0;
 

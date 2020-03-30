@@ -1,5 +1,5 @@
 #pragma once
-#include "../dll/pch.h"
+#include "..\dll\pch.h"
 
 using json = nlohmann::json;
 
@@ -11,6 +11,7 @@ public:
 	std::string name;
 	json j;
 	bool loaded;
+	bool appLoaded;
 	cLibInfo(HMODULE _hlib, std::string _path, std::string _j) {
 		hlib = _hlib;
 		path = _path;
@@ -21,20 +22,24 @@ public:
 	}
 };
 
-class cTopological
-{
-public:
-	std::string name;
-	std::vector<std::string > libNames;
-};
+namespace libutils {
+	extern std::vector<cLibInfo> libList;
+	extern std::queue<std::string> loadedAppIDList;
+	extern HANDLE hCQThread;
+	extern HANDLE hCQThreadEvent;
+	extern HANDLE hCQThreadExitEvent;
 
-extern std::vector<cLibInfo> libList; // ²å¼þ±í
+	extern DWORD WINAPI CQThreadProc(LPVOID lpParameter);
+	extern void loadLib(std::vector<cLibInfo> tlibList);
+	std::vector<cLibInfo> loadLib_1();
+	void LibCallback(std::vector<cLibInfo>* tlibList);
+	void appCallback(std::vector<cLibInfo>* tlibList);
+	bool isEnabled(std::string AppID);
+	extern void unloadLib();
+	//extern void reloadLib();
 
-extern void loadLib();
-extern void unloadLib();
-extern void reloadLib();
-
-bool versionMatch(std::string rver, std::string ver);
-std::vector<cLibInfo> LibSort(const std::vector<cLibInfo> sortLib);
-std::vector<std::string> TSort(const std::vector<cTopological> sortT);
-std::vector<cLibInfo>::iterator libFind(std::vector<cLibInfo>::iterator _First, const std::vector<cLibInfo>::iterator _Last, const std::string& _Val);
+	bool versionMatch(std::string rver, std::string ver);
+	std::vector<cLibInfo> LibSort(const std::vector<cLibInfo> sortLib);
+	std::vector<std::string> TSort(const std::map<std::string, int> _indegree, const std::map<std::string, std::vector<std::string>> adj);
+	std::vector<cLibInfo>::iterator libFind(std::vector<cLibInfo>::iterator _First, const std::vector<cLibInfo>::iterator _Last, const std::string& _Val);
+}

@@ -1,19 +1,19 @@
 // 一个示例 json，填入 LibInfo 的返回值中
 // CooLib-Native 无法读取含注释的 json（https://github.com/nlohmann/json/issues/376），请删除注释后放入
 {
-    "ver": 1, // 版本号，填1
-    "AppID": "com.example.demo", // AppID，与应用 AppID 保持一致
-    "AppVer": "1.0.0", // 应用版本，应当符合 semver 版本号规定（https://semver.org/lang/zh-CN/）
-    "require": { // 依赖库表
-        "cn.coorg.coolib": "*" // 依赖库及需求版本（版本范围语法：https://docs.npmjs.com/misc/semver#ranges https://docs.npmjs.com/misc/semver#advanced-range-syntax）
-    },
-    "using": { // using 表，格式："名称":"LibAppID::API名"
-        "Lib_GetFuncAddr": "cn.coorg.coolib::GetFuncAddr"
-    },
-    "LibAPI": [ // 接口表
-        {
-            "func": "ExampleAddFunc", // DLL函数名
-            "?": "@@YGHHH@Z" // 参数表
-        }
-    ]
+  "ver": 1, // 版本号，填1
+  "AppID": "com.example.demo", // AppID，与应用 AppID 保持一致
+  "AppVer": "1.0.0", // 应用版本，应当符合 semver 版本号规定（https://semver.org/lang/zh-CN/）
+  "require": { // 依赖库表
+    "cn.coorg.coolib.testlib": "*" // 依赖库及需求版本（版本范围语法：https://docs.npmjs.com/misc/semver#ranges https://docs.npmjs.com/misc/semver#advanced-range-syntax）
+  },
+  "using": {
+    "ExampleDecFunc": "cn.coorg.coolib.testlib::ExampleDecFunc"
+  },
+  "LibAPI": { // 接口表
+    "ExampleAddFunc": "ExampleAddFunc", // API名 : DLL导出名
+    "Dec": { // 命名空间，可嵌套
+      "ExampleDecFunc": "ExampleDecFunc"
+    }
+  }
 }

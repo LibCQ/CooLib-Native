@@ -15,12 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\cqapi\cq.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\cqevent\cqevent.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\dll\dll.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -39,15 +33,18 @@
     <ClInclude Include="src\cpp-semver\include\cpp-semver.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\cq\cq.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cq\cqevent.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libevent\utils\v1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\cqapi\cq.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\dll\dllmain.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\cqevent\cqevent.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\dll\pch.cpp">
@@ -57,6 +54,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\libevent\libevent.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cq\cq.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cq\cqevent.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libevent\utils\v1.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

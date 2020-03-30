@@ -7,18 +7,10 @@ extern "C" const char* __stdcall LibInfo() {
 {
     "ver": 1,
     "AppID": "cn.coorg.coolib",
-    "AppVer": "1.0.0",
+    "AppVer": "0.0.1",
     "require": {},
-    "LibAPI": [
-        {
-            "func": "CheckLibA",
-            "?": "@@YG_NPADPAD@Z"
-        },
-        {
-            "func": "VersionMatch",
-            "?": "@@YG_NPADPAD@Z"
-        }
-    ]
+    "using": {},
+    "LibAPI": {}
 }
 )";
 }
@@ -39,9 +31,22 @@ extern "C" int32_t __stdcall ExitCallback(const char* a) {
 	return 0;
 }
 
+extern "C" bool __stdcall LibLoaded(const char* a) {
+	if (libutils::isEnabled(a)) {
+		libutils::loadedAppIDList.push(a);
+		if (libutils::hCQThreadEvent) {
+			ReleaseSemaphore(libutils::hCQThreadEvent, 1, NULL);
+		}
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 extern "C" int32_t __stdcall CheckLibA(const char* LibAppID, const char* LibVer) {
-	for (cLibInfo& i : libList) {
-		if (i.name == LibAppID && versionMatch(i.j["AppVer"].get<std::string>(), LibVer)) {
+	for (cLibInfo& i : libutils::libList) {
+		if (i.name == LibAppID && libutils::versionMatch(i.j["AppVer"].get<std::string>(), LibVer)) {
 			return true;
 		}
 	}
@@ -49,5 +54,10 @@ extern "C" int32_t __stdcall CheckLibA(const char* LibAppID, const char* LibVer)
 }
 
 extern "C" int32_t __stdcall VersionMatch(const char* version, const char* range) {
-	return versionMatch(version, range);
+	return libutils::versionMatch(version, range);
+}
+
+extern "C" int32_t __stdcall IsEnabled(const char* AppID) {
+	auto rlib = libutils::libFind(libutils::libList.begin(), libutils::libList.end(), AppID);
+	return rlib != libutils::libList.end() && rlib->appLoaded;
 }

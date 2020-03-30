@@ -92,8 +92,8 @@ namespace libutils {
 
 		QueryPerformanceCounter(&time);
 		__int64 timeEnd = time.QuadPart;
-		cq::CQ_addLog_Debug("Loader", (
-			boost::format("Loaded.(%d succeed, %fms)") % libutils::libList.size() % ((double)(timeEnd - timeStart) * 1000 / timeDff)
+		cq::CQ_addLog_Info("Loader", (
+			boost::format("CooLib loaded.(%d total, %d succeed, %fms)") % tlibList.size() % libList.size() % ((double)(timeEnd - timeStart) * 1000 / timeDff)
 			).str().c_str());
 		return 0;
 	}
@@ -327,4 +327,15 @@ namespace libutils {
 		return semver::satisfies(version, range);
 	}
 
+}
+
+cLibInfo::cLibInfo(HMODULE _hlib, std::string _path, std::string _j) {
+	hlib = _hlib;
+	path = _path;
+
+	std::regex e("/\\*[\\s\\S]*\\*/|//.*");
+	std::string uj = std::regex_replace(_j, e, "");
+	j = json::parse(uj);
+	name = j["AppID"].get<std::string>();
+	loaded = false;
 }

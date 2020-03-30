@@ -1,5 +1,4 @@
 // 一个示例 json，填入 LibInfo 的返回值中
-// CooLib-Native 无法读取含注释的 json（https://github.com/nlohmann/json/issues/376），请删除注释后放入
 {
   "ver": 1, // 版本号，填1
   "AppID": "com.example.demo", // AppID，与应用 AppID 保持一致

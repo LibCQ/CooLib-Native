@@ -12,14 +12,7 @@ public:
 	json j;
 	bool loaded;
 	bool appLoaded;
-	cLibInfo(HMODULE _hlib, std::string _path, std::string _j) {
-		hlib = _hlib;
-		path = _path;
-
-		j = json::parse(_j);
-		name = j["AppID"].get<std::string>();
-		loaded = false;
-	}
+	cLibInfo(HMODULE _hlib, std::string _path, std::string _j);
 };
 
 namespace libutils {

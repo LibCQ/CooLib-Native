@@ -12,8 +12,8 @@
 #include <shlwapi.h>
 //#pragma comment(lib,"shlwapi.lib")
 #include <queue>
+#include <regex>
 
-#include "boost/regex.hpp"
 #include "boost/algorithm/string/regex.hpp"
 #include "nlohmann/json.hpp"
 #include "boost/format.hpp"

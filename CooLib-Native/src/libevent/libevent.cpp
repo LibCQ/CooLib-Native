@@ -10,7 +10,13 @@ extern "C" const char* __stdcall LibInfo() {
     "AppVer": "0.0.1",
     "require": {},
     "using": {},
-    "LibAPI": {}
+    "LibAPI": {
+        "library": {
+            "CheckLibA": "CheckLibA",
+            "VersionMatch": "VersionMatch",
+            "IsEnabled": "IsEnabled"
+        }
+    }
 }
 )";
 }

@@ -49,6 +49,8 @@ extern "C" int32_t __stdcall _eventStartup()
 
 extern "C" int32_t __stdcall _eventEnable() {
 
+	cq::CQ_addLog_Info("Loader", "CooLib 仍在加载中，在加载完毕前消息都将被丢弃");
+
 	libutils::hCQThreadExitEvent = CreateEventA(NULL, true, false, NULL);
 	libutils::hCQThread = CreateThread(NULL, 0, libutils::CQThreadProc, NULL, 0, NULL);
 

@@ -14,7 +14,8 @@ extern "C" const char* __stdcall LibInfo() {
         "library": {
             "CheckLibA": "CheckLibA",
             "VersionMatch": "VersionMatch",
-            "IsEnabled": "IsEnabled"
+            "IsEnabled": "IsEnabled",
+			"GetVersion": "GetLibVersion"
         }
     }
 }
@@ -38,32 +39,30 @@ extern "C" int32_t __stdcall ExitCallback(const char* a) {
 }
 
 extern "C" bool __stdcall LibLoaded(const char* a) {
-	if (libutils::isEnabled(a)) {
-		libutils::loadedAppIDList.push(a);
-		if (libutils::hCQThreadEvent) {
-			ReleaseSemaphore(libutils::hCQThreadEvent, 1, NULL);
-		}
-		return true;
-	}
-	else {
-		return false;
-	}
+	if (!libutils::isEnabled(a)) return false;
+	libutils::loadedAppIDList.push(a);
+	if (libutils::hCQThreadEvent) ReleaseSemaphore(libutils::hCQThreadEvent, 1, NULL);
+	return true;
 }
 
 extern "C" int32_t __stdcall CheckLibA(const char* LibAppID, const char* LibVer) {
-	for (cLibInfo& i : libutils::libList) {
-		if (i.name == LibAppID && libutils::versionMatch(i.j["AppVer"].get<std::string>(), LibVer)) {
-			return true;
-		}
-	}
-	return false;
+	auto rlib = libutils::libFind(libutils::libList.begin(), libutils::libList.end(), LibAppID);
+	if (rlib == libutils::libList.end()) return false;
+	if (!LibVer) return true;
+	return libutils::versionMatch(rlib->j["AppVer"].get<std::string>(), LibVer);
 }
 
 extern "C" int32_t __stdcall VersionMatch(const char* version, const char* range) {
 	return libutils::versionMatch(version, range);
 }
 
-extern "C" int32_t __stdcall IsEnabled(const char* AppID) {
+extern "C" bool __stdcall IsEnabled(const char* AppID) {
 	auto rlib = libutils::libFind(libutils::libList.begin(), libutils::libList.end(), AppID);
 	return rlib != libutils::libList.end() && rlib->appLoaded;
+}
+
+extern "C" bool __stdcall GetLibVersion(const char* AppID, char* VersionBack, size_t BufferSize) {
+	auto rlib = libutils::libFind(libutils::libList.begin(), libutils::libList.end(), AppID);
+	if (rlib == libutils::libList.end()) return false;
+	return StringCchCopyA(VersionBack, BufferSize, rlib->j["AppVer"].get<std::string>().c_str()) == S_OK;
 }

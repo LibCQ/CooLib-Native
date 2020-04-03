@@ -30,6 +30,8 @@ namespace libutils {
 	bool isEnabled(std::string AppID);
 	extern void unloadLib();
 	//extern void reloadLib();
+	void disableCallback(std::vector<cLibInfo>* tlibList);
+	void exitCallback(std::vector<cLibInfo>* tlibList);
 
 	bool versionMatch(std::string rver, std::string ver);
 	std::vector<cLibInfo> LibSort(const std::vector<cLibInfo> sortLib);

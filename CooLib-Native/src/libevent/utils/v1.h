@@ -15,4 +15,10 @@ namespace libutils {
 	namespace appCallbackUtils {
 		int32_t appCallback_1(HMODULE hlib);
 	}
+	namespace disableCallbackUtils {
+		int32_t disableCallback_1(HMODULE hlib);
+	}
+	namespace exitCallbackUtils {
+		bool exitCallback_1(cLibInfo i, std::vector<cLibInfo> tlibList);
+	}
 }

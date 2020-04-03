@@ -129,8 +129,7 @@ namespace libutils {
 			typedef int32_t(__stdcall* libCallbackProc)(bool, const char*);
 			libCallbackProc hlibCallbackProc = (libCallbackProc)GetProcAddress(i.hlib, "LibCallback"); // Lib Callback
 			if (hlibCallbackProc == NULL) return false;
-			auto i2 = hlibCallbackProc(bj["s"].get<bool>(), bj.dump(-1, ' ', true).c_str());
-			return i2 == 0;
+			return hlibCallbackProc(bj["s"].get<bool>(), bj.dump(-1, ' ', true).c_str()) == 0;
 		}
 
 		/*
@@ -216,6 +215,47 @@ namespace libutils {
 			if (happCallbackProc == NULL) return 0;
 			// 调用事件
 			return happCallbackProc();
+		}
+	}
+
+	namespace disableCallbackUtils {
+		int32_t disableCallback_1(HMODULE hlib) {
+			typedef int32_t(__stdcall* disableCallbackProc)();
+			disableCallbackProc hdisableCallbackProc = (disableCallbackProc)GetProcAddress(hlib, "DisableCallback"); // App Callback
+			if (hdisableCallbackProc == NULL) return 0;
+			// 调用事件
+			return hdisableCallbackProc();
+		}
+	}
+
+	namespace exitCallbackUtils {
+		bool exitCallback_1(cLibInfo i, std::vector<cLibInfo> tlibList) {
+			json bj = json::object();
+			bj["s"] = true;
+
+			// 依赖检查
+			std::vector<std::string> bloadedLib;
+			if (!i.j["require"].empty()) {
+				// 遍历Lib需求表
+				for (auto libName = i.j["require"].begin(); libName != i.j["require"].end(); ++libName) {
+					// 依赖检测
+					auto r = LibCallbackUtils::isReqExist(libName.key(), libName.value().get<std::string>(), i.name, tlibList);
+					if (r.empty()) {
+						bloadedLib.push_back(libName.key());
+					}
+					else {
+						cq::CQ_addLog_Error("CooLib-Native", r.c_str());
+						bj["s"] = false;
+					}
+				}
+			}
+			bj["loadedLib"] = bloadedLib;
+
+			typedef int32_t(__stdcall* exitCallbackProc)(const char*);
+			exitCallbackProc hexitCallbackProc = (exitCallbackProc)GetProcAddress(i.hlib, "ExitCallback"); // App Callback
+			if (hexitCallbackProc == NULL) return 0;
+			// 调用事件
+			return hexitCallbackProc(bj.dump().c_str()) == 0;
 		}
 	}
 }

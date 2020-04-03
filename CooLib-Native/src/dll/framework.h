@@ -5,6 +5,7 @@
 #include <windows.h>
 //#include <d2d1.h>
 //#pragma comment(lib, "d2d1")
+#include <strsafe.h>
 
 #include <cstdint>
 #include <future>

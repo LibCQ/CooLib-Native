@@ -36,7 +36,7 @@ namespace libutils {
 			std::string i = loadedAppIDList.front();
 			std::vector<cLibInfo>::iterator rlib = libFind(tlibListTmp.begin(), tlibListTmp.end(), i);
 			if (rlib != tlibListTmp.end()) tlibList.push_back(*rlib);
-			cq::CQ_addLog_Debug("Loader", (
+			cq::CQ_addLog_Debug("Loader-Pusher", (
 				boost::format("Pushed app: %s") % rlib->name
 				).str().c_str());
 			loadedAppIDList.pop();
@@ -61,7 +61,7 @@ namespace libutils {
 						std::string i = loadedAppIDList.front();
 						std::vector<cLibInfo>::iterator rlib = libFind(tlibListTmp.begin(), tlibListTmp.end(), i);
 						if (rlib != tlibListTmp.end()) tlibList.push_back(*rlib);
-						cq::CQ_addLog_Debug("Loader", (
+						cq::CQ_addLog_Debug("Loader-Pusher", (
 							boost::format("Pushed app: %s") % rlib->name
 							).str().c_str());
 						loadedAppIDList.pop();
@@ -100,12 +100,21 @@ namespace libutils {
 	/*
 		加载 Lib
 	*/
-	void loadLib(std::vector<cLibInfo> tlibList) {
+	void loadLib(std::vector<cLibInfo> _tlibList) {
 		/* 载入前验证 */
 		if (!libList.empty()) unloadLib();
 
+		auto tlibList = _tlibList;
+
 		/* 排序插件 */
 		tlibList = LibSort(tlibList);
+		if (tlibList.empty()) {
+			std::string emsg = "Lib列表为空，可能插件出现了循环依赖，请逐个排除插件！\r\n插件列表：\r\n";
+			for (auto i : _tlibList) {
+				emsg += i.name + "\r\n";
+			}
+			cq::CQ_addLog_Error("Loader", emsg.c_str());
+		}
 
 		cq::CQ_addLog_Debug("Loader", "LibCallback:");
 
@@ -136,7 +145,7 @@ namespace libutils {
 	void LibCallback(std::vector<cLibInfo>* tlibList) {
 		for (cLibInfo& i : *tlibList) {
 			if (i.j["ver"] == 1) {
-				cq::CQ_addLog_Debug("Loader", (
+				cq::CQ_addLog_Debug("Loader-LibCallback", (
 					boost::format("Calling %s:") % i.name
 					).str().c_str());
 
@@ -150,7 +159,7 @@ namespace libutils {
 
 				QueryPerformanceCounter(&time);
 				__int64 timeEnd = time.QuadPart;
-				cq::CQ_addLog_Debug("Loader", (
+				cq::CQ_addLog_Debug("Loader-LibCallback", (
 					boost::format("Called %s.(%fms)") % i.name % ((double)(timeEnd - timeStart) * 1000 / timeDff)
 					).str().c_str());
 			}
@@ -163,7 +172,7 @@ namespace libutils {
 	void appCallback(std::vector<cLibInfo>* tlibList) {
 		for (cLibInfo& i : *tlibList) {
 			if (i.j["ver"] == 1) {
-				cq::CQ_addLog_Debug("Loader", (
+				cq::CQ_addLog_Debug("Loader-AppCallback", (
 					boost::format("Calling %s:") % i.name
 					).str().c_str());
 
@@ -177,7 +186,7 @@ namespace libutils {
 
 				QueryPerformanceCounter(&time);
 				__int64 timeEnd = time.QuadPart;
-				cq::CQ_addLog_Debug("Loader", (
+				cq::CQ_addLog_Debug("Loader-AppCallback", (
 					boost::format("Called %s.(%fms)") % i.name % ((double)(timeEnd - timeStart) * 1000 / timeDff)
 					).str().c_str());
 			}
@@ -188,59 +197,82 @@ namespace libutils {
 		/* 卸载前验证，避免不必要的判断 */
 		if (libList.empty()) return;
 
+		LARGE_INTEGER time;
+		QueryPerformanceFrequency(&time);
+		LONGLONG timeDff = time.QuadPart;
+		QueryPerformanceCounter(&time);
+		__int64 timeStart = time.QuadPart;
+
+		auto itotal = libList.size();
+
 		/* 倒序排列 */
 		libList = LibSort(libList);
 		std::reverse(libList.begin(), libList.end());
 
 		/* 通知事件 */
-		for (cLibInfo& i : libList) {
-			typedef int32_t(__stdcall* disableCallbackProc)();
-			disableCallbackProc hdisableCallbackProc = (disableCallbackProc)GetProcAddress(i.hlib, "DisableCallback"); // App Callback
-			if (hdisableCallbackProc == NULL) continue;
-			disableCallbackProc(); // 调用事件
-			i.appLoaded = false;
-		}
+		disableCallback(&libList);
 
 		/* 卸载 */
-		for (cLibInfo& i : libList) {
-			std::vector<std::string> bloadedLib;
-			json bj = json::object();
-
-			// 依赖检查
-			if (!i.j["lib"].empty()) {
-				// 遍历Lib需求表
-				for (auto libName = i.j["require"].begin(); libName != i.j["require"].end(); ++libName) {
-					// 查找对应依赖
-					std::vector<cLibInfo>::iterator rlib = libFind(libList.begin(), libList.end(), libName.key());
-
-					// 依赖未加载
-					if (!rlib->loaded) {
-						cq::CQ_addLog_Error("CooLib-Native", (
-							boost::format("插件 %s 依赖的 %s 未正确加载。") % i.name % libName.key()
-							).str().c_str());
-					}
-
-					// 将依赖加入成功列表
-					bloadedLib.push_back(rlib->name);
-				}
-			}
-			bj["loadedLib"] = bloadedLib;
-
-			// 返回信息
-			typedef int32_t(__stdcall* exitCallbackProc)(const char*);
-			exitCallbackProc hexitCallbackProc = (exitCallbackProc)GetProcAddress(i.hlib, "ExitCallback"); // App Callback
-			if (hexitCallbackProc == NULL) continue;
-			exitCallbackProc(bj.dump().c_str()); // 调用事件
-			i.loaded = false;
-
-			// 释放插件
-			FreeLibrary(i.hlib);
-		}
+		exitCallback(&libList);
 
 		/* 清空表 */
 		libList.clear();
 
+		QueryPerformanceCounter(&time);
+		__int64 timeEnd = time.QuadPart;
+		cq::CQ_addLog_Info("Loader", (
+			boost::format("CooLib unloaded.(%d total, %fms)") % itotal % ((double)(timeEnd - timeStart) * 1000 / timeDff)
+			).str().c_str());
+
 		return;
+	}
+
+	void disableCallback(std::vector<cLibInfo>* tlibList) {
+		for (cLibInfo& i : *tlibList) {
+			if (i.j["ver"] == 1) {
+				cq::CQ_addLog_Debug("Loader-DisableCallback", (
+					boost::format("Calling %s:") % i.name
+					).str().c_str());
+
+				LARGE_INTEGER time;
+				QueryPerformanceFrequency(&time);
+				LONGLONG timeDff = time.QuadPart;
+				QueryPerformanceCounter(&time);
+				__int64 timeStart = time.QuadPart;
+
+				i.appLoaded = disableCallbackUtils::disableCallback_1(i.hlib) != 0;
+
+				QueryPerformanceCounter(&time);
+				__int64 timeEnd = time.QuadPart;
+				cq::CQ_addLog_Debug("Loader-DisableCallback", (
+					boost::format("Called %s.(%fms)") % i.name % ((double)(timeEnd - timeStart) * 1000 / timeDff)
+					).str().c_str());
+			}
+		}
+	}
+
+	void exitCallback(std::vector<cLibInfo>* tlibList) {
+		for (cLibInfo& i : *tlibList) {
+			if (i.j["ver"] == 1) {
+				cq::CQ_addLog_Debug("Loader-ExitCallback", (
+					boost::format("Calling %s:") % i.name
+					).str().c_str());
+
+				LARGE_INTEGER time;
+				QueryPerformanceFrequency(&time);
+				LONGLONG timeDff = time.QuadPart;
+				QueryPerformanceCounter(&time);
+				__int64 timeStart = time.QuadPart;
+
+				i.loaded = !exitCallbackUtils::exitCallback_1(i, *tlibList);
+
+				QueryPerformanceCounter(&time);
+				__int64 timeEnd = time.QuadPart;
+				cq::CQ_addLog_Debug("Loader-ExitCallback", (
+					boost::format("Called %s.(%fms)") % i.name % ((double)(timeEnd - timeStart) * 1000 / timeDff)
+					).str().c_str());
+			}
+		}
 	}
 
 	//void reloadLib() { // 重载插件

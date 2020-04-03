@@ -10,4 +10,10 @@
 // 添加要在此处预编译的标头
 #include "framework.h"
 
+#ifdef _DEBUG
+#define DebugMode true
+#else
+#define DebugMode false
+#endif
+
 #endif //PCH_H

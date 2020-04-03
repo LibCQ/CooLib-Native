@@ -5,6 +5,7 @@
 #include "..\libevent\lib.h"
 #include "cq.h"
 #include "cqevent.h"
+#include "..\libevent\libevent.h"
 
 extern "C" const char* __stdcall AppInfo()
 {
@@ -103,6 +104,30 @@ extern "C" int32_t __stdcall _eventExit()
 
 extern "C" int32_t __stdcall _about()
 {
-
+	std::string msg;
+	msg += "CooLib-Native by nt_zi_mu";
+	msg += "\r\n";
+	if (DebugMode) {
+		msg += "Debug enabled.";
+		msg += "\r\n";
+	}
+	msg += "让酷Q支持前置插件";
+	msg += "\r\n";
+	msg += "使用：";
+	msg += "\r\n";
+	msg += "Visual Studio 2019";
+	msg += "\r\n";
+	msg += "C++14";
+	msg += "\r\n";
+	msg += "测试通过：";
+	msg += "\r\n";
+	msg += "CoolQ Air 5.15.9";
+	msg += "\r\n";
+	MessageBoxA(
+		NULL,
+		msg.c_str(),
+		"CooLib-Native About",
+		MB_OK | MB_ICONINFORMATION
+	);
 	return 0;
 }

@@ -9,6 +9,7 @@ extern "C"
 	int32_t __stdcall ExitCallback(const char* a);
 	int32_t __stdcall CheckLibA(const char* LibAppID, const char* LibVer);
 	int32_t __stdcall VersionMatch(const char* ver1, const char* ver2);
-	int32_t __stdcall IsEnabled(const char* AppID);
+	bool __stdcall IsEnabled(const char* AppID);
 	bool __stdcall LibLoaded(const char* a);
+	extern "C" bool __stdcall GetLibVersion(const char* AppID, char* VersionBack, size_t BufferSize);
 }

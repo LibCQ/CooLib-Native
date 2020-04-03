@@ -6,6 +6,7 @@ _eventExit
 _eventStartup
 _eventEnable
 _eventDisable
+_about
 LibInfo
 LibCallback
 AppCallback
